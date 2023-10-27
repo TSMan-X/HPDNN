@@ -1,3 +1,4 @@
+#include <atomic>
 
 struct ptrCount {
 public:
@@ -6,36 +7,37 @@ public:
 	int curCount() { return count;}
 
 private:
-	atomic_int count = 0;
+	std::atomic<int> count = 0;
 };
 
 template<class T>
 class sharedPtr {
 public:
 	//constructor : default
-	sharedPtr() == default;
+	sharedPtr() = default;
 
 	// accept raw pointers
 	sharedPtr(T* ptr) : data_(ptr) {
 		count_ = new ptrCount;
-		count_->count = 1;
+		count_->incCount();
 	}
 
 	sharedPtr(const sharedPtr& rhs) {
-		// cur != nullptr
-		
-		
+		isInvasive();	
 		// cur == nullptr
 		data_ = rhs.getData();
 		count_ = rhs.getCount();
-		count_->incCount();
+		if (count_ != nullptr)
+			count_->incCount();
 	}
 
 	sharedPtr& operator=(const sharedPtr& rhs) {
 		if (this == rhs) return rhs;
+		isInvasive();
 		data_ = rhs.getData();
 		count_ = rhs.getCount();
-		count_->incCount();	
+		if (count_ != nullptr)
+			count_->incCount();	
 		return *this;
 	}
 
@@ -55,7 +57,20 @@ public:
 	ptrCount* getCount() const { return count_;}
 
 private:
+	void isInvasive() {
+		if (data_ != nullptr) {
+			count_->decCount();
+			if (count_->curCount() == 0) {
+				delete data_;
+				delete count_;
+				data_ = nullptr;
+				count_ = nullptr;
+			}
+		}		
+	}
 	T* data_ = nullptr;
 	ptrCount* count_ = nullptr;
 };
 
+template<typename T>
+using sPtr = sharedPtr<T>;
