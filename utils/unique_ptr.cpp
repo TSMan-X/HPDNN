@@ -8,7 +8,7 @@
 template<class T, class Deleter=defaultDelate<T> >
 class uiquePtr {
 public:
-	constexpr unique_ptr() noexcept {}
+  constexpr unique_ptr() noexcept {}
   constexpr unique_ptr( std::nullptr_t ptr ) noexcept {
     data_ = ptr;
   }
@@ -30,7 +30,7 @@ public:
     std::swap(getDeleter(), other.getDeleter());
   }
 
-	T* get() const noexcept { 
+  T* get() const noexcept { 
     return data_;
   }
   Deleter & getDeleter() noexcept {
@@ -43,15 +43,14 @@ public:
     return get() != nullptr; 
   }
 
-
-	T& operator*() const noexcept { 
+  T& operator*() const noexcept { 
     return *get(); 
   }
-	T* operator->() const noexcept { 
+  T* operator->() const noexcept {
     return get(); 
   }
 
 private:
-	T* data_ = nullptr;
+  T* data_ = nullptr;
   Deleter deleter;
 };
