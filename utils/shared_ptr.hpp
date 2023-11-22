@@ -2,9 +2,9 @@
 
 struct ptrCount {
 public:
-	void incCount() { count++; }
-	void decCount() { count--; }
-	int curCount() { return count;}
+	void incCount() noexcept { count++; }
+	void decCount() noexcept { count--; }
+	int curCount() const noexcept { return count;}
 
 private:
 	std::atomic<int> count = 0;
@@ -49,12 +49,12 @@ public:
 		}
 	}
 
-	T& operator*() const { return *data_; }
-	T* operator->() const { return data_; }
-	operator bool() const { return data_; }
+	T& operator*() const noexcept { return *data_; }
+	T* operator->() const noexcept { return data_; }
+	operator bool() const noexcept { return data_; }
 	
-	T* getData() const { return data_;}
-	ptrCount* getCount() const { return count_;}
+	T* getData() const noexcept { return data_;}
+	ptrCount* getCount() const noexcept { return count_;}
 
 private:
 	void isInvasive() {
