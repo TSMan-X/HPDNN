@@ -12,7 +12,7 @@ __global__ void softmax_base_2D(T * input, T * output, T * tmp, int M, int N, in
 
   for (int s = N / 2; s > 0; s >>= 1) { // calculate the max value of a row, and will be stored at tmp[y][0]
     if ( gx < s && gy < M ) {
-      tmp[gy * N + gx] = max(tmp[gy * N + gx], tmp[gy * N + gx]); 
+      tmp[gy * N + gx] = max(tmp[gy * N + gx + s], tmp[gy * N + gx]); 
     }
     cudaDeviceSynchronize();
   }
@@ -31,7 +31,7 @@ __global__ void softmax_base_2D(T * input, T * output, T * tmp, int M, int N, in
 
   for (int s = N / 2; s > 0; s >>= 1) { // calculate the sum value of a row, and will be stored at tmp[y][0]
     if ( gx < s && gy < M ) {
-      tmp[gy * N + gx] = tmp[gy * N + gx] + tmp[gy * N + gx]; 
+      tmp[gy * N + gx] = tmp[gy * N + gx + s] + tmp[gy * N + gx]; 
     }
     cudaDeviceSynchronize();
   }
