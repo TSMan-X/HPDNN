@@ -76,20 +76,20 @@ void softmax_base_2D(T * input, T * output, T * tmp, int M, int N, const dim3 & 
   // tmp : M
 
   // 1. reduceMax
-  reduce_max_2D<DT><<<grid, block>>>(input, tmp, M, N);
+  reduce_max_2D<T><<<grid, block, block.x * block.y * sizeof(T)>>>(input, tmp, M, N);
   cudaDeviceSynchronize();
 
   // 2. broadcastSub and elementwiseExp
-  broadcast_sub_elementwise_exp<DT><<<grid, block>>>(input, output, tmp, M, N);
+  broadcast_sub_elementwise_exp<T><<<grid, block>>>(input, output, tmp, M, N);
   cudaDeviceSynchronize();
 
   // 3. reduceSum
-  reduce_sum_2D<DT><<<grid, block>>>(input, tmp, M, N);
+  reduce_sum_2D<T><<<grid, block, block.x * block.y * sizeof(T)>>>(input, tmp, M, N);
   cudaDeviceSynchronize();
 
   // 4. broadcastDiv
-  broadcast_div<DT><<<grid, block>>>(output, tmp, M, N);
+  broadcast_div<T><<<grid, block>>>(output, tmp, M, N);
   cudaDeviceSynchronize();
-
+  
   return;
 }

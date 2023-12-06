@@ -6,9 +6,8 @@
 #include "../src/softmax_base.cu"
 
 
-#define M 2048
-#define K 1024
-#define N 2048
+#define M 1024
+#define N 1024
 
 #ifdef INT
   #define DT int
@@ -67,10 +66,10 @@ int main(int argc, char* argv[]) {
 
   DT *A = new DT[M * N];
   DT *B = new DT[M * N];
-  DT *C = new DT[M * N];
+  DT *T = new DT[M];
   std::fill_n(A, M * N, 1);
   std::fill_n(B, M * N, 1);
-  std::fill_n(C, M * N, 0);
+  std::fill_n(T, M, 0);
   
   //  CPU softmax
   cpu_softmax(A, B, M, N);
@@ -87,14 +86,14 @@ int main(int argc, char* argv[]) {
   dim3 block(blockSizeM / threadSizeM, blockSizeN / threadSizeN);
   
   //  alloc device memory
-  DT *D_A, *D_B, *D_C;
+  DT *D_A, *D_B, *D_T;
   cudaMalloc((DT**)(&D_A), M * N * sizeof(DT));
   cudaMalloc((DT**)(&D_B), M * N * sizeof(DT));
-  cudaMalloc((DT**)(&D_C), M * N * sizeof(DT));
+  cudaMalloc((DT**)(&D_T), M * sizeof(DT));
 
   cudaMemcpy(D_A, A, M * N * sizeof(DT), cudaMemcpyHostToDevice);
 
-  softmax_base_2D<DT>(D_A, D_B, D_C, M, N, M * N, grid, block);
+  softmax_base_2D<DT>(D_A, D_B, D_T, M, N, grid, block);
   cudaDeviceSynchronize();
   cudaError_t cudaError = cudaGetLastError();
   if (cudaError != cudaSuccess) {
@@ -121,7 +120,7 @@ int main(int argc, char* argv[]) {
   
   delete A;
   delete B;
-  delete C;
+  delete T;
   delete H_B;
 
 }
